@@ -14,7 +14,7 @@ Started this as a school project, still adding stuff here and there.
 - Keeps a device list between runs (`known_devices.json`)
 - Writes everything to a log file (`sentinel_log.jsonl`)
 - Desktop notification on alerts, if `plyer` is installed
-
+![Main Screen](./screenshots/main.png)
 ## Setup
 ```bash
 pip install -r requirements.txt
