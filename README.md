@@ -53,3 +53,9 @@ you get a high-priority alert instead of the normal one.
 - auto-fix ARP table on detection
 - other attack types (DHCP starvation, DNS spoofing)
 - also educal bro
+-
+-  ⚠️ Disclaimer
+
+This project is developed for educational and defensive monitoring purposes only. Do not use it on networks without explicit permission from the administrator.
+
+
