@@ -1,81 +1,55 @@
-SecSentinel 🛡️
+# SecSentinel
 
-    ⚠️ WARNING / DISCLAIMER: This project is currently in an early demo / development stage. It is designed strictly for educational, testing, and defensive monitoring purposes in controlled laboratory environments. Do not run this software on networks or systems without explicit, prior authorization. The author assumes no liability for any misuse or damage caused by this program.
+Small tool that watches ARP traffic on your local network and flags
+possible spoofing / MITM attempts (someone's MAC address suddenly
+claiming an IP that already belongs to another device).
 
-SecSentinel is a lightweight, Python-based network security and anomaly monitoring system designed to detect new device arrivals and alert users against potential ARP spoofing / cache poisoning attacks in real time.
-Features
+Started this as a school project, still adding stuff here and there.
 
-    Real-Time Device Discovery: Automatically detects and logs new devices joining the network by capturing ARP traffic.
+## What it does
+- Listens to ARP packets on an interface
+- Logs new devices it sees, with vendor lookup from the MAC
+- Flags MAC/IP conflicts (classic ARP spoofing pattern)
+- Optional whitelist for devices you want to pin down (router, NAS, etc.)
+- Keeps a device list between runs (`known_devices.json`)
+- Writes everything to a log file (`sentinel_log.jsonl`)
+- Desktop notification on alerts, if `plyer` is installed
 
-    Vendor Identification: Resolves MAC addresses to hardware vendors using Scapy's built-in OUI database (MANUFDB).
+## Setup
+```bash
+pip install -r requirements.txt
+```
 
-    ARP Spoofing Detection: Identifies potential Man-in-the-Middle (MitM) or ARP poisoning attempts by tracking IP-to-MAC consistency.
+## Run
+```bash
+sudo python3 sentinel.py -i wlan0
+```
 
-    Root Privilege Enforcement: Ensures the script runs with necessary packet-sniffing permissions.
+Needs root since it's sniffing raw packets.
 
-    Clean CLI Interface: Features color-coded terminal alerts for immediate threat visibility.
+If you don't pass `-i`, it'll try the default interface.
 
-Current Status (v0.4 Demo)
+### Whitelist (optional)
+Copy the example and fill in devices you trust:
+```bash
+cp whitelist.example.json whitelist.json
+```
+If an IP in the whitelist shows up with a different MAC than expected,
+you get a high-priority alert instead of the normal one.
 
-This is a proof-of-concept prototype. Upcoming features and improvements planned for future releases include:
+### Flags
+- `-i, --interface` — which interface to listen on
+- `--no-persist` — don't save/load known_devices.json
+- `--no-notify` — turn off desktop notifications
+- `--whitelist PATH` — use a different whitelist file
 
-    Persistent storage for known devices (SQLite / JSON logging).
+## Notes
+- `known_devices.json` and `sentinel_log.jsonl` contain your actual network
+  data, probably don't commit those (already in `.gitignore`).
 
-    Whitelisting mechanism for trusted network cards/devices.
-
-    Telegram or desktop notification integrations.
-
-Prerequisites
-
-    Python 3.x
-
-    Scapy library
-
-    Linux-based operating system (requires root privileges for raw socket sniffing)
-
-Installation
-
-    Clone the repository:
-    Bash
-
-    git clone https://github.com/yourusername/SecSentinel.git
-    cd SecSentinel
-
-    Install dependencies:
-    Bash
-
-    pip install scapy
-
-Usage
-
-Run the script with sudo privileges to allow packet capture on your network interfaces:
-Bash
-
-sudo python3 sentinel.py
-
-Options
-
-    Specify a custom network interface:
-    Bash
-
-    sudo python3 sentinel.py -i eth0
-
-Example Output
-Plaintext
-
-=================================================================
-                    SecSentinel v0.4                             
-          Network Security & Anomaly Monitoring System           
-=================================================================
-[*] Listening on default network interface...
-[*] Listening to network traffic... (Press Ctrl+C to exit)
-[+] New Device Discovered -> IP: 192.168.1.1 | MAC: 00:11:22:33:44:55 | Vendor: Example Corp
-[!] SECURITY ALERT: ARP Conflict / Possible Spoofing Attack Detected!
-    IP: 192.168.1.50 changed its MAC address from (AA:BB:CC:DD:EE:FF) to (11:22:33:44:55:66)
-
-Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-License
-
-MIT
+## TODO
+- web dashboard maybe
+- email/telegram alerts
+- auto-fix ARP table on detection
+- other attack types (DHCP starvation, DNS spoofing)
+- also educal bro
